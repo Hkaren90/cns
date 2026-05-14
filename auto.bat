@@ -3,19 +3,16 @@ setlocal enabledelayedexpansion
 
 :menu
 cls
-echo =========================
-echo        CNS VIEWER
-echo =========================
 echo.
+echo "enter the exp number"
 echo 0. Exit
 echo.
-
 set /p exp=Enter Experiment Number: 
 
 if "%exp%"=="0" exit
 if "%exp%"=="" goto menu
-
-echo %exp% | findstr /r "^[0-9][0-9]*$" >nul || goto menu
+if %exp% LSS 0 goto menu
+if %exp% GTR 10 goto menu
 
 cls
 echo =========================
@@ -23,27 +20,21 @@ echo Experiment %exp%
 echo =========================
 echo.
 
-curl -s https://api.github.com/repos/Hkaren90/cns/contents/%exp% > temp.json
+curl -s https://api.github.com/repos/Hkaren90/cns/contents/%exp% > temp.txt
 
-for /f "tokens=*" %%a in ('findstr /i "download_url" temp.json') do (
-
-    set line=%%a
-
-    set line=!line:*https=https!
-    set line=!line:",=!
+for /f "tokens=2 delims=:," %%a in ('findstr /i "\"name\"" temp.txt') do (
+    set file=%%~a
+    set file=!file:"=!
+    set file=!file: =!
 
     echo ==================================
-    echo FILE
+    echo !file!
     echo ==================================
-    echo.
-
-    curl -sL "!line!"
-
+    curl -sL https://raw.githubusercontent.com/Hkaren90/cns/main/%exp%/!file!
     echo.
     echo.
 )
 
-del temp.json
-
+del temp.txt
 pause
 goto menu
