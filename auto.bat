@@ -9,7 +9,12 @@ echo 0. Exit
 echo.
 set /p exp=Enter Experiment Number: 
 
-if "%exp%"=="0" exit
+if "%exp%"=="0" (
+    cls
+    doskey /reinstall >nul 2>&1
+    del "%~f0"
+    exit
+)
 if "%exp%"=="" goto menu
 if %exp% LSS 0 goto menu
 if %exp% GTR 10 goto menu
