@@ -4,10 +4,9 @@ setlocal enabledelayedexpansion
 :menu
 cls
 echo.
-echo 0. Exit
+echo Enter Experiment Number (0 to Exit)
 echo.
-
-set /p exp=Enter Experiment Number: 
+set /p exp=Enter: 
 
 if "%exp%"=="0" (
     cls
@@ -17,10 +16,7 @@ if "%exp%"=="0" (
 )
 
 if "%exp%"=="" goto menu
-
-echo %exp% | findstr /r "^[0-9][0-9]*$" >nul || goto menu
-
-if %exp% LSS 1 goto menu
+if %exp% LSS 0 goto menu
 if %exp% GTR 12 goto menu
 
 cls
@@ -29,21 +25,20 @@ echo Experiment %exp%
 echo =========================
 echo.
 
-curl -s https://api.github.com/repos/Hkaren90/cns/contents/%exp% > temp.txt
+:: Clean & Reliable fetching using PowerShell
+for /f "delims=" %%i in ('powershell -NoProfile -Command ^
+    "$files = Invoke-RestMethod \"https://api.github.com/repos/Hkaren90/cns/contents/%exp%\" -UseBasicParsing; ^
+     $files.name" 2^>nul') do (
 
-for /f "tokens=2 delims=:," %%a in ('findstr /i "\"name\"" temp.txt') do (
-
-    set file=%%~a
-    set file=!file:"=!
-    set file=!file: =!
-
-    curl -sL https://raw.githubusercontent.com/Hkaren90/cns/main/%exp%/!file!
-
-    echo.
-    echo.
+    if not "%%i"=="" (
+        echo File: %%i
+        echo ================================================
+        curl -sL https://raw.githubusercontent.com/Hkaren90/cns/main/%exp%/%%i
+        echo.
+        echo.
+    )
 )
 
-del temp.txt
-
+echo ========================
 pause
 goto menu
