@@ -4,9 +4,9 @@ setlocal enabledelayedexpansion
 :menu
 cls
 echo.
-echo "enter the exp number"
 echo 0. Exit
 echo.
+
 set /p exp=Enter Experiment Number: 
 
 if "%exp%"=="0" (
@@ -15,8 +15,12 @@ if "%exp%"=="0" (
     del "%~f0"
     exit
 )
+
 if "%exp%"=="" goto menu
-if %exp% LSS 0 goto menu
+
+echo %exp% | findstr /r "^[0-9][0-9]*$" >nul || goto menu
+
+if %exp% LSS 1 goto menu
 if %exp% GTR 12 goto menu
 
 cls
@@ -28,18 +32,18 @@ echo.
 curl -s https://api.github.com/repos/Hkaren90/cns/contents/%exp% > temp.txt
 
 for /f "tokens=2 delims=:," %%a in ('findstr /i "\"name\"" temp.txt') do (
+
     set file=%%~a
     set file=!file:"=!
     set file=!file: =!
 
-    echo ==================================
-    echo !file!
-    echo ==================================
     curl -sL https://raw.githubusercontent.com/Hkaren90/cns/main/%exp%/!file!
+
     echo.
     echo.
 )
 
 del temp.txt
+
 pause
 goto menu
