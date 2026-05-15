@@ -10,10 +10,9 @@ echo.
 set /p exp=Enter Experiment Number:
 
 if "%exp%"=="0" (
-cls
-doskey /reinstall >nul 2>&1
-del "%\~f0"
-exit
+    cls
+    echo Exiting...
+    exit
 )
 if "%exp%"=="" goto menu
 if %exp% LSS 0 goto menu
@@ -27,13 +26,12 @@ echo.
 
 curl -s https://api.github.com/repos/Hkaren90/cns/contents/%exp% > temp.txt
 
-:: ================== CHANGED PART ONLY ==================
-for /f "tokens=*" %%a in ('findstr /i "name" temp.txt') do (
+for /f "delims=" %%a in ('findstr /i "\"name\":" temp.txt') do (
     set "line=%%a"
-    set "line=!line:*"name": "=!"
-    set "file=!line:,=!"
+    set "file=!line:*"name": "=!"
     set "file=!file:"=!"
-    
+    set "file=!file:,=!"
+
     if not "!file!"=="" (
         echo ==================================  
         echo !file!  
@@ -43,7 +41,6 @@ for /f "tokens=*" %%a in ('findstr /i "name" temp.txt') do (
         echo.
     )
 )
-:: ======================================================
 
 del temp.txt
 pause
