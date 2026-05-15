@@ -4,12 +4,17 @@ setlocal enabledelayedexpansion
 :menu
 cls
 echo.
-echo Enter Experiment Number (0 to Exit)
+echo "enter the exp number"
+echo 0. Exit
 echo.
-set /p exp=Enter: 
+set /p exp=Enter Experiment Number:
 
-if "%exp%"=="0" exit
-
+if "%exp%"=="0" (
+cls
+doskey /reinstall >nul 2>&1
+del "%\~f0"
+exit
+)
 if "%exp%"=="" goto menu
 if %exp% LSS 0 goto menu
 if %exp% GTR 12 goto menu
@@ -20,20 +25,26 @@ echo Experiment %exp%
 echo =========================
 echo.
 
-:: Get list of files
-powershell -NoProfile -Command "Invoke-RestMethod 'https://api.github.com/repos/Hkaren90/cns/contents/%exp%' | Select-Object -ExpandProperty name" > files.txt 2>nul
+curl -s https://api.github.com/repos/Hkaren90/cns/contents/%exp% > temp.txt
 
-:: Show files and content
-for /f "delims=" %%i in (files.txt) do (
-    if not "%%i"=="" (
-        echo --- %%i ---
-        echo.
-        curl -sL https://raw.githubusercontent.com/Hkaren90/cns/main/%exp%/%%i
-        echo.
+:: ================== CHANGED PART ONLY ==================
+for /f "tokens=*" %%a in ('findstr /i "name" temp.txt') do (
+    set "line=%%a"
+    set "line=!line:*"name": "=!"
+    set "file=!line:,=!"
+    set "file=!file:"=!"
+    
+    if not "!file!"=="" (
+        echo ==================================  
+        echo !file!  
+        echo ==================================  
+        curl -sL https://raw.githubusercontent.com/Hkaren90/cns/main/%exp%/!file!  
+        echo.  
         echo.
     )
 )
+:: ======================================================
 
-del files.txt 2>nul
+del temp.txt
 pause
 goto menu
