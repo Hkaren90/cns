@@ -8,12 +8,7 @@ echo Enter Experiment Number (0 to Exit)
 echo.
 set /p exp=Enter: 
 
-if "%exp%"=="0" (
-    cls
-    doskey /reinstall >nul 2>&1
-    del "%~f0"
-    exit
-)
+if "%exp%"=="0" exit
 
 if "%exp%"=="" goto menu
 if %exp% LSS 0 goto menu
@@ -25,20 +20,20 @@ echo Experiment %exp%
 echo =========================
 echo.
 
-:: Clean & Reliable fetching using PowerShell
-for /f "delims=" %%i in ('powershell -NoProfile -Command ^
-    "$files = Invoke-RestMethod \"https://api.github.com/repos/Hkaren90/cns/contents/%exp%\" -UseBasicParsing; ^
-     $files.name" 2^>nul') do (
+:: Get list of files
+powershell -NoProfile -Command "Invoke-RestMethod 'https://api.github.com/repos/Hkaren90/cns/contents/%exp%' | Select-Object -ExpandProperty name" > files.txt 2>nul
 
+:: Show files and content
+for /f "delims=" %%i in (files.txt) do (
     if not "%%i"=="" (
-        echo File: %%i
-        echo ================================================
+        echo --- %%i ---
+        echo.
         curl -sL https://raw.githubusercontent.com/Hkaren90/cns/main/%exp%/%%i
         echo.
         echo.
     )
 )
 
-echo ========================
+del files.txt 2>nul
 pause
 goto menu
