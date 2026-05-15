@@ -17,7 +17,7 @@ if "%exp%"=="0" (
 )
 if "%exp%"=="" goto menu
 if %exp% LSS 0 goto menu
-if %exp% GTR 10 goto menu
+if %exp% GTR 12 goto menu
 
 cls
 echo =========================
