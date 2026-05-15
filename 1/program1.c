@@ -1,41 +1,34 @@
 #include <stdio.h>
-#include <string.h>
 #include <ctype.h>
 
-char key[] = "QWERTYUIOPASDFGHJKLZXCVBNM";
-char reverse_key[26];
-
-void generate_reverse_key() {
-    for (int i = 0; i < 26; i++) {
-        reverse_key[key[i] - 'A'] = 'A' + i;
-    }
-}
-
-void encrypt(char *text) {
+void caesar_cipher(char *text, int shift) {
     for (int i = 0; text[i]; i++) {
         if (isalpha(text[i])) {
-            int index = isupper(text[i]) ? text[i] - 'A' : text[i] - 'a';
-            text[i] = isupper(text[i]) ? key[index] : tolower(key[index]);
+            char base = isupper(text[i]) ? 'A' : 'a';
+            text[i] = (text[i] - base + shift) % 26 + base;
         }
     }
 }
-void decrypt(char *text) {
-    for (int i = 0; text[i]; i++) {
-        if (isalpha(text[i])) {
-            int index = isupper(text[i]) ? text[i] - 'A' : text[i] - 'a';
-            text[i] = isupper(text[i]) ? reverse_key[index] : tolower(reverse_key[index]);
-        }
-    }
+
+void caesar_decipher(char *text, int shift) {
+    caesar_cipher(text, 26 - shift);
 }
+
 int main() {
     char text[100];
-    generate_reverse_key();
-    printf("Enter a string: ");
+    int shift;
+
+    printf("Enter text: ");
     fgets(text, sizeof(text), stdin);
-    text[strcspn(text, "\n")] = '\0';
-    encrypt(text);
-    printf("Encrypted text: %s\n", text);
-    decrypt(text);
-    printf("Decrypted text: %s\n", text);
+
+    printf("Enter shift: ");
+    scanf("%d", &shift);
+
+    caesar_cipher(text, shift);
+    printf("Encrypted: %s", text);
+
+    caesar_decipher(text, shift);
+    printf("Decrypted: %s", text);
+
     return 0;
 }
